@@ -23,14 +23,14 @@
       }
     ],
     "description": "Create a new GitHub repository for the project and set up the initial structure.",
-    "user": "Alice",
-    "title": "Set up project repository",
+    "user": "Kong",
+    "title": "1.Set up project repository",
     "commentCount": 3
   },
   {
     "_id": "3TIPGpzPSVfnUzn0gymv",
     "description": "Create an ER diagram for the project's database.",
-    "title": "Design database schema",
+    "title": "2.Design database schema",
     "comments": [
       {
         "user": "Alice",

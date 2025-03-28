@@ -1,14 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TextInput, Button, TouchableOpacity } from 'react-native';
-import data from './data.json';
+import { API_URL } from '@env';
 
 const HomeScreen = () => {
+
+  const [data, setData] = useState([]); // default value or empty value
+  const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  // the first function to be exexcuted when loaded to the page
+  // similar to public static void main
+  // async - allow for both task (load data and load UI) to happen at the same time
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/tasks`);
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, []);
 
   // Function to render each todo item
   const renderItem = ({ item }) => {
     const date = new Date(item.createdAt);
     const formattedDate = date.toLocaleDateString();
     const formattedTime = date.toLocaleTimeString();
+
+    if (loading) {
+      return (
+        <View style={styles.container}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
+    }
 
     return (
       <View style={styles.itemContainer}>
@@ -22,8 +54,29 @@ const HomeScreen = () => {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (title === '' || description === '') {
+      alert('Please fill in both title and description');
+      return;
+    }
 
+    try {
+      const response = await fetch (`${API_URL}/tasks`, {
+        method:'POST',
+        headers: {
+          'Content-type': 'application/json', 
+        },
+        body: JSON.stringify({title, description})
+      });
+      const newTask = await response.json();
+      setData((prevData) => [...prevData, newTask]);
+      setTitle('');
+      setDescription('');
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,10 +91,14 @@ const HomeScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Title"
+          value={title}
+          onChangeText={setTitle} 
         />
         <TextInput
           style={styles.input}
           placeholder="Description"
+          value={description}
+          onChangeText={setDescription}        
         />
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
